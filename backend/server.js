@@ -1,6 +1,10 @@
+const dontenv = require("dotenv").config();
 const express = require("express");
+const connectDB = require("./config/connectDB");
 
 const app = express();
+
+connectDB();
 
 // ROUTE
 
