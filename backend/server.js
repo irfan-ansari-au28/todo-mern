@@ -10,6 +10,11 @@ app.get("/", (req, res) => {
   res.send("Home Page");
 });
 
+app.post("/api/tasks", async (req, res) => {
+  console.log(req.body);
+  res.send("Task Created !!!");
+});
+
 const PORT = process.env.PORT || 5000;
 
 const startServer = async () => {
