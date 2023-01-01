@@ -4,6 +4,9 @@ const connectDB = require("./config/connectDB");
 
 const app = express();
 
+// MIDDLEWARE
+app.use(express.json());
+
 // ROUTE
 
 app.get("/", (req, res) => {
