@@ -12,6 +12,8 @@ const TaskList = () => {
   const [tasks, setTasks] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [completed, setCompleted] = useState(0);
+  const [isEditing, setIsEditing] = useState(false);
+  const [taskId, setTaskId] = useState("");
 
   const [formData, setFormData] = useState({
     name: "",
@@ -32,10 +34,11 @@ const TaskList = () => {
     }
 
     try {
-      await axios.post(`${URL}/api/tasks`, formData);
+      const { data } = await axios.post(`${URL}/api/tasks`, formData);
+      setTasks([...tasks, data]);
       toast.success("Task added successfully!!");
       setFormData({ ...formData, name: "" });
-      getTasks();
+      //   getTasks();
     } catch (error) {
       toast.error(error.message);
       console.log(error.message);
@@ -66,6 +69,16 @@ const TaskList = () => {
     }
   };
 
+  const getSingleTask = async (task) => {
+    setFormData({
+      name: task.name,
+      completed: false
+    });
+    setIsEditing(true);
+  };
+
+  const editTask = async () => {};
+
   useEffect(() => {
     getTasks();
   }, []);
@@ -81,6 +94,8 @@ const TaskList = () => {
               name={name}
               createTask={createTask}
               handleInputChange={handleInputChange}
+              isEditing={isEditing}
+              editTask={editTask}
             />
             <div className="flex items-center border-b-2 mb-2 py-2"></div>
             {isLoading && (
@@ -93,7 +108,12 @@ const TaskList = () => {
             ) : (
               tasks.map((task, index) => {
                 return (
-                  <Task key={task._id} task={task} deleteTask={deleteTask} />
+                  <Task
+                    key={task._id}
+                    task={task}
+                    deleteTask={deleteTask}
+                    getSingleTask={getSingleTask}
+                  />
                 );
               })
             )}
