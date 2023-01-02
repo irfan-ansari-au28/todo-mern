@@ -11,7 +11,7 @@ import { BiLoader } from "react-icons/bi";
 const TaskList = () => {
   const [tasks, setTasks] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [completed, setCompleted] = useState(0);
+  const [completedTask, setCompletedTask] = useState([]);
   const [isEditing, setIsEditing] = useState(false);
   const [taskId, setTaskId] = useState("");
 
@@ -94,9 +94,28 @@ const TaskList = () => {
     }
   };
 
+  const setTaskToComplete = async (task) => {
+    const newFormData = {
+      name: task.name,
+      completed: true
+    };
+
+    try {
+      await axios.put(`${URL}/api/tasks/${task._id}`, newFormData);
+      getTasks();
+    } catch (error) {
+      toast.error("Failed to load Task");
+    }
+  };
+
   useEffect(() => {
     getTasks();
   }, []);
+
+  useEffect(() => {
+    const cTask = tasks.filter((task) => task.completed === true);
+    setCompletedTask(cTask);
+  }, [tasks]);
 
   return (
     <div>
@@ -128,14 +147,18 @@ const TaskList = () => {
                     task={task}
                     deleteTask={deleteTask}
                     getSingleTask={getSingleTask}
+                    setTaskToComplete={setTaskToComplete}
                   />
                 );
               })
             )}
-
-            <div className="flex items-center justify-between my-2">
-              <p className="text-gray-300 text-sm">4/6 task completed</p>
-            </div>
+            {tasks.length > 0 && (
+              <div className="flex items-center justify-between my-2">
+                <p className="text-gray-400 text-sm">
+                  {completedTask.length}/{tasks.length} task completed
+                </p>
+              </div>
+            )}
           </div>
         </div>
       </>
