@@ -3,7 +3,7 @@ import { VscCheckAll } from "react-icons/vsc";
 import { FaPencilAlt } from "react-icons/fa";
 import { FaTrashAlt } from "react-icons/fa";
 
-const Task = ({ task }) => {
+const Task = ({ task, deleteTask }) => {
   console.log(task.name);
   return (
     <div className="shadow-md rounded-md px-2 py-2 my-2  bg-white relative overflow-hidden border-l-4 border-indigo-500">
@@ -19,7 +19,7 @@ const Task = ({ task }) => {
             <FaPencilAlt color="blue" />
           </div>
           <div className="ml-2 ">
-            <FaTrashAlt color="red" />
+            <FaTrashAlt color="red" onClick={() => deleteTask(task._id)} />
           </div>
         </div>
       </div>

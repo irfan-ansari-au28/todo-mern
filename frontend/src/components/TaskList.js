@@ -11,6 +11,7 @@ import { BiLoader } from "react-icons/bi";
 const TaskList = () => {
   const [tasks, setTasks] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [completed, setCompleted] = useState(0);
 
   const [formData, setFormData] = useState({
     name: "",
@@ -54,6 +55,17 @@ const TaskList = () => {
     }
   };
 
+  const deleteTask = async (id) => {
+    try {
+      await axios.delete(`${URL}/api/tasks/${id}`);
+      toast.success("Task Deleted");
+      getTasks();
+    } catch (error) {
+      toast.error("Failed to load Task");
+      console.log(error.message);
+    }
+  };
+
   useEffect(() => {
     getTasks();
   }, []);
@@ -80,7 +92,9 @@ const TaskList = () => {
               <h1>No tasks found !!</h1>
             ) : (
               tasks.map((task, index) => {
-                return <Task key={task._id} task={task} />;
+                return (
+                  <Task key={task._id} task={task} deleteTask={deleteTask} />
+                );
               })
             )}
 
