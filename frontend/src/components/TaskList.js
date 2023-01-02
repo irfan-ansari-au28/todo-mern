@@ -1,13 +1,17 @@
 import axios from "axios";
-import React from "react";
+import React, { useEffect } from "react";
 import { useState } from "react";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { URL } from "../App";
 import Task from "./Task";
 import TaskForm from "./TaskForm";
+import { BiLoader } from "react-icons/bi";
 
 const TaskList = () => {
+  const [tasks, setTasks] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+
   const [formData, setFormData] = useState({
     name: "",
     completed: false
@@ -30,11 +34,30 @@ const TaskList = () => {
       await axios.post(`${URL}/api/tasks`, formData);
       toast.success("Task added successfully!!");
       setFormData({ ...formData, name: "" });
+      getTasks();
     } catch (error) {
       toast.error(error.message);
       console.log(error.message);
     }
   };
+
+  const getTasks = async () => {
+    try {
+      setIsLoading(true);
+      const { data } = await axios.get(`${URL}/api/tasks`);
+      setTasks(data);
+      setIsLoading(false);
+    } catch (error) {
+      toast.error("Failed to load Task");
+      console.log(error.message);
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    getTasks();
+  }, []);
+
   return (
     <div>
       <>
@@ -48,7 +71,18 @@ const TaskList = () => {
               handleInputChange={handleInputChange}
             />
             <div className="flex items-center border-b-2 mb-2 py-2"></div>
-            <Task />
+            {isLoading && (
+              <span className="animate-spin flex flex-wrap items-center justify-center ">
+                <BiLoader color="red" />
+              </span>
+            )}
+            {!isLoading && tasks.length === 0 ? (
+              <h1>No tasks found !!</h1>
+            ) : (
+              tasks.map((task, index) => {
+                return <Task key={task._id} task={task} />;
+              })
+            )}
 
             <div className="flex items-center justify-between my-2">
               <p className="text-gray-300 text-sm">4/6 task completed</p>
