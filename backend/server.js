@@ -1,8 +1,9 @@
-const dontenv = require("dotenv").config();
+const dotenv = require("dotenv").config();
 const express = require("express");
 const connectDB = require("./config/connectDB");
 const taskRoutes = require("./routes/taskRoute");
 const cors = require("cors");
+const helmet = require("helmet"); // Add helmet import
 
 const app = express();
 
@@ -11,46 +12,72 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cors());
 
-// SECURITY HEADERS: Added to improve security
-app.use((req, res, next) => {
-  // Strict-Transport-Security (HSTS) - Enforce HTTPS
-  res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload');
+// Helmet Security Headers
+app.use(helmet()); // Basic helmet configuration
 
-  // Content-Security-Policy (CSP) - Prevent Cross-site scripting (XSS) and data injection attacks
-  res.setHeader('Content-Security-Policy', "default-src 'self'; script-src 'self' 'unsafe-inline'; object-src 'none';");
+// Additional specific helmet configurations
+app.use(
+  helmet.contentSecurityPolicy({
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'"],
+      styleSrc: ["'self'", "'unsafe-inline'"],
+      imgSrc: ["'self'", "data:", "https:"],
+      connectSrc: ["'self'", "https://api.your-domain.com"],
+      fontSrc: ["'self'"],
+      objectSrc: ["'none'"],
+      mediaSrc: ["'self'"],
+      frameSrc: ["'none'"],
+      frameAncestors: ["'none'"],
+      formAction: ["'self'"],
+      baseUri: ["'self'"]
+    }
+  })
+);
 
-  // X-Frame-Options - Prevent Clickjacking
-  res.setHeader('X-Frame-Options', 'DENY');
+// HSTS configuration (Already included in helmet, but you can customize)
+app.use(
+  helmet.hsts({
+    maxAge: 31536000,
+    includeSubDomains: true,
+    preload: true
+  })
+);
 
-  // X-Content-Type-Options - Prevent MIME type sniffing
-  res.setHeader('X-Content-Type-Options', 'nosniff');
+// Permissions policy
+app.use(
+  helmet.permittedCrossDomainPolicies({
+    permittedPolicies: "none"
+  })
+);
 
-  // Referrer-Policy - Control the information sent with the Referer header
-  res.setHeader('Referrer-Policy', 'no-referrer');
-
-  // Permissions-Policy - Control access to various browser features
-  res.setHeader('Permissions-Policy', 'geolocation=(self), microphone=()');
-  
-  next();
-});
-
+// Routes
 app.use("/api/tasks", taskRoutes);
 
-// ROUTE
+// Home route
 app.get("/", (req, res) => {
   res.send("Home Page");
 });
 
+// Error handling middleware
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).send('Something broke!');
+});
+
+// Port configuration
 const PORT = process.env.PORT || 5000;
 
+// Server startup
 const startServer = async () => {
   try {
     await connectDB();
     app.listen(PORT, () => {
-      console.log(`Server is running on ${PORT}`);
+      console.log(`Server is running on port ${PORT}`);
     });
   } catch (error) {
-    console.log(error);
+    console.log("Error starting server:", error);
+    process.exit(1);
   }
 };
 
