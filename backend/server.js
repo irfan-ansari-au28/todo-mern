@@ -68,6 +68,8 @@ app.use("/api/tasks", taskRoutes);
 
 // Home route
 app.get("/", (req, res) => {
+  // Log all headers
+  console.log('Response Headers:', res.getHeaders());
   res.send("Home Page");
 });
 
