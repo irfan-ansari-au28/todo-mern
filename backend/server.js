@@ -11,6 +11,29 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cors());
 
+// SECURITY HEADERS: Added to improve security
+app.use((req, res, next) => {
+  // Strict-Transport-Security (HSTS) - Enforce HTTPS
+  res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload');
+
+  // Content-Security-Policy (CSP) - Prevent Cross-site scripting (XSS) and data injection attacks
+  res.setHeader('Content-Security-Policy', "default-src 'self'; script-src 'self' 'unsafe-inline'; object-src 'none';");
+
+  // X-Frame-Options - Prevent Clickjacking
+  res.setHeader('X-Frame-Options', 'DENY');
+
+  // X-Content-Type-Options - Prevent MIME type sniffing
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+
+  // Referrer-Policy - Control the information sent with the Referer header
+  res.setHeader('Referrer-Policy', 'no-referrer');
+
+  // Permissions-Policy - Control access to various browser features
+  res.setHeader('Permissions-Policy', 'geolocation=(self), microphone=()');
+  
+  next();
+});
+
 app.use("/api/tasks", taskRoutes);
 
 // ROUTE
