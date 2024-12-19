@@ -23,7 +23,7 @@ app.use(
       scriptSrc: ["'self'"],
       styleSrc: ["'self'", "'unsafe-inline'"],
       imgSrc: ["'self'", "data:", "https:"],
-      connectSrc: ["'self'", "https://api.your-domain.com"],
+      connectSrc: ["'self'", "https://todo-api-mern.onrender.com"],
       fontSrc: ["'self'"],
       objectSrc: ["'none'"],
       mediaSrc: ["'self'"],
